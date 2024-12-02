@@ -1,0 +1,62 @@
+from quart import Quart, jsonify, request
+from Api_Routes.__init__ import register_routes
+import Functions.Data_Handling
+import Functions.LM_Functions
+import os
+from dotenv import load_dotenv
+
+folder_path = "./primalAPI"
+app = Quart(__name__)
+dh = Functions.Data_Handling.Data_Handling()
+lmh = Functions.LM_Functions.LM_Functions()
+register_routes(app, dh, folder_path)
+
+dotenv_path = f"{os.getcwd()}//Configuration_Files/.env"
+load_dotenv(dotenv_path)
+
+API_KEY = os.getenv("API_KEY")
+
+print(API_KEY)
+
+
+dh.Create_Json("qna", folder_path)
+
+questions = []
+keywords = []
+exact_sentences = []
+
+questions, keywords, exact_sentences = dh.Get_From_QnA_Json(folder_path)
+
+@app.before_request
+async def before_request():
+    if request.headers.get("x-api-key") != API_KEY:
+        return jsonify({"error": "Unauthorized Attempt"}), 403
+
+@app.route("/qna/get-answer", methods=["GET"])
+async def get_answer():
+    data = await request.get_json()
+    question = data.get("question", "")
+    # keywords = data.get("keywords", [])
+
+    if questions == "":
+        return jsonify({"error": "No Questions Provided"}), 400
+    
+    if question in exact_sentences:
+        answer = dh.Get_Answers_From_QnA_Json(question, folder_path, True)
+    else:
+        zero_shot_result = await lmh.zero_shot_classification(question)
+        if zero_shot_result:
+            result = await lmh.sentence_similarity(question, questions)
+            if result:
+                answer = dh.Get_Answers_From_QnA_Json(result, folder_path)
+                return jsonify({"answer": answer}), 200
+            else:
+                return jsonify({"error": "Question does not match the criteria"}), 400
+        else:
+            return jsonify({"error": "Sentence was not deemed a question or request"}), 400
+        
+
+
+if __name__ == "__main__":
+    print("Starting API")
+    app.run(port=5000, debug=True)

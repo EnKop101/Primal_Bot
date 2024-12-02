@@ -1,0 +1,4 @@
+from .json_handling_routes import register_json_handling_routes
+
+def register_routes(app, dh, folder_path):
+    register_json_handling_routes(app, dh, folder_path)

@@ -1,0 +1,45 @@
+PrimalChaos is a major overhaul mod for Ark Survival Ascended.
+It adds new creatures, tiers, bosses, and items.
+It significantly increases the difficulty of the game.
+The mod was made for PVE(Player Version Environment) and is not balanced nor do we recommend using it for PvP.
+
+New Creatures:
+Many new creatures with unique tiers and abilities.
+Spawn codes can be found in a linked spreadsheet.
+(https://docs.google.com/spreadsheets/d/1cT7InAARC7WxlWVByin3DLlLE5HZ1e6P93UNyO2Kl1A/edit?usp=sharing)
+
+Taming:
+Some creatures, like some of the bosses, require defeat before dropping a tameable token.
+
+Elemental Bosses:
+Each element (Volcanic, Hydro, Electric) has strengths and weaknesses.
+Use the correct element and potions for effective boss fights.
+Modded dinos are generally stronger than vanilla dinos and bosses.
+
+Final Boss:
+The current final boss is the Deathknight, a very powerful opponent.
+The Deathknight has no elemental weaknesses and various strategies can be used to defeat him. It just trying out what works out best for you.
+Defeating the Deathknight has a 10% chance to spawn a tameable token.
+The Deathknight can only be summoned.
+
+Basic tiers: 
+Beta, Alpha, Elementals, Advanced Elementals Mythic, Legendary, Primal Resurrected, Demonic, Angelic, Nightmares
+
+Elemental tiers: 
+Volcanic, Hydro and Electric.
+There is also a Guardian boss for each elemental variant.
+The Elementals each have their own strength and weaknesses which needs to be considered before fighting one of them.
+The weaknesses and strength goes like this. Volcanic > Hydro > Electric > Volcanic.
+
+Advanced Elemental tiers:
+Fairies, Shadow
+
+Egg Laying:
+Egg laying speed can be increased through server configs or by taming an Oviraptor to get the egg laying boost.
+
+Updates:
+No estimated time for the next update. Announcements will be made.
+
+Official Server:
+Server name: PrimalChaos OFFICIALSERVER
+Map: The Center

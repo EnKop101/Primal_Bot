@@ -1,0 +1,151 @@
+import json
+import os
+
+class Data_Handling:
+    def Create_Json(self, option, path):
+        """
+        This function creates a JSON file at the specified path. This is used only when the file does not exist.
+        """
+        data = ""
+        file_path = f"{path}/{option}.json"
+
+        # Check if the file exists
+        if not os.path.exists(file_path):
+            # Check if the folder exists
+            if not os.path.exists(path):
+                os.makedirs(path)
+
+            if option == "config":
+                data = {
+"promo_channel": 0,
+"output_channel": 0,
+"ignore_channels": [],
+"help_channels": [],
+                }
+            elif option == "auth":
+                data = {
+"moderators": [],
+"admins": [],
+                }
+            elif option == "qna":
+                data = {
+"questions_and_answers": [],
+"keywords": [],
+"exact_sentences": []
+                }
+
+            with open(file_path, 'w') as f:
+                json.dump(data, f, indent=4)
+                return True
+        else:
+            return False
+        
+    def Get_From_QnA_Json(self, path):
+        """
+        This function retrieves the QnA and Keywords from the JSON file.
+        """
+        path = f"{path}/qna.json"
+        with open(path, 'r') as f:
+            data = json.load(f)
+            questions = [entry["question"] for entry in data['questions_and_answers']]
+            keywords = data['keywords']
+            exact_sentences = [entry["question"] for entry in data['exact_sentences']]
+            return questions, keywords, exact_sentences
+        
+    def Get_From_Auth_Json(self, path):
+        """
+        This function retrieves the moderators and admins from the JSON file.
+        """
+        path = f"{path}//auth.json"
+        with open(path, 'r') as f:
+            data = json.load(f)
+            moderators = data['moderators']
+            admins = data['admins']
+            return moderators, admins
+    
+    def Get_From_Config_Json(self, path):
+        """
+        This function retrieves the configuration details from the JSON file.
+        """
+        path = f"{path}//config.json"
+        with open(path, 'r') as f:
+            data = json.load(f)
+            promo_channel = data['promo_channel']
+            output_channel = data['output_channel']
+            ignore_channels = data['ignore_channels']
+            help_channels = data['help_channels']
+            return promo_channel, output_channel, ignore_channels, help_channels
+        
+    def Get_Answers_From_QnA_Json(self, question, path, exact = False):
+        """
+        This function retrieves the answers for the given question from the JSON file.
+        """
+        path = f"{path}//qna.json"
+        with open(path, 'r') as f:
+            data = json.load(f)
+            dictionary = {}
+            if exact:
+                dictionary_list = data['exact_sentences']
+            else:
+                dictionary_list = data['questions_and_answers']
+
+            answer = ""
+            for entry in dictionary_list:
+                if entry.get("question") == question:  # Adjust the key as needed
+                    answer = entry.get("answer")  # Retrieve the associated answer
+                    break  # Stop searching after the first match
+            return answer
+        
+    async def Add_To_QnA_Json(self, question, answer, path, exact = False):
+        """
+        This function adds the question and answer to the JSON file.
+        """
+        id = 1
+        path = f"{path}//qna.json"
+
+        with open(path, 'r') as f:
+            data = json.load(f)
+            if exact:
+                if len(data["exact_sentences"]) > 0:
+                    # Get the last id in the JSON file and add 1 to it
+                    id = data["exact_sentences"][-1]["Id"] + 1
+                
+                new_entry = {
+                    "Id": id,
+                    "question": question,
+                    "answer": answer
+                }
+                data["exact_sentences"].append(new_entry)
+            
+            else:
+                if len(data["questions_and_answers"]) > 0:
+                    # Get the last id in the JSON file and add 1 to it
+                    id = data["questions_and_answers"][-1]["Id"] + 1
+
+                # Create the new entry with ID, question, and answer
+                new_entry = {
+                    "Id": id,
+                    "question": question,
+                    "answer": answer
+                }
+                data["questions_and_answers"].append(new_entry)
+
+        with open(path, 'w') as f:
+            json.dump(data, f, indent=4)
+    
+    async def Delete_From_QnA_Json(self, id, path, exact = False):
+        """
+        This function deletes the question and answer from the JSON file.
+        """
+        path = f"{path}//qna.json"
+
+        with open(path, 'r') as f:
+            data = json.load(f)
+            dictionary = data['exact_sentences'] if exact else data['questions_and_answers']
+            for entry in dictionary:
+                if entry["Id"] == id:
+                    dictionary.remove(entry)
+                    break
+
+        with open(path, 'w') as f:
+            json.dump(data, f, indent=4)
