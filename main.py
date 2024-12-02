@@ -22,7 +22,7 @@ load_dotenv(dotenv_path)
 
 #Get all the values from the .env file
 bot_token = os.getenv('TOKEN')
-test_token = os.getenv('TEST')
+# test_token = os.getenv('TEST')
 promo_channel_id = int(os.getenv('PROMO_CHANNEL_ID'))
 ai_channel_id = os.getenv('AI_CHANNEL_ID')
 rcon_ip = os.getenv('RCON_IP')
@@ -90,27 +90,25 @@ async def on_message(message: nextcord.Message):
             await message.delete()
 
 # on Raw Message Edit event. This event is called whenever a message is edited. This will mostly contain the same code as the on_message event.
-@bot.event
-async def on_raw_message_edit(message_payload):
-    message = await bot.get_channel(message_payload.channel_id).fetch_message(message_payload.message_id)
+# @bot.event
+# async def on_raw_message_edit(message_payload):
+#     message = await bot.get_channel(message_payload.channel_id).fetch_message(message_payload.message_id)
 
-    if message.author == bot.user:
-        return
-    # Check if the user is an authorized user.
-    if message.author.id not in authorized_users_id:
-        # Check if the message contains a discord invite link. If it does, delete the message unless the link is in the promotion channel and user owns the thread.
-        if await QoL_Functions.filter_links(message, promo_channel_id):
-            await message.author.send(delete_after=5, embed=se.error_embed(f"{message.author.mention}, you are not allowed to send discord invite links other than in the promotion channel!"))
-            await message.delete()
+#     if message.author == bot.user:
+#         return
+#     # Check if the user is an authorized user.
+#     if message.author.id not in authorized_users_id:
+#         # Check if the message contains a discord invite link. If it does, delete the message unless the link is in the promotion channel and user owns the thread.
+#         if await QoL_Functions.filter_links(message, promo_channel_id):
+#             await message.author.send(delete_after=5, embed=se.error_embed(f"{message.author.mention}, you are not allowed to send discord invite links other than in the promotion channel!"))
+#             await message.delete()
 
 @bot.event
 async def on_thread_create(thread: nextcord.Thread):
     if thread.parent_id != promo_channel_id:
         return
-    
-    
 
 #endregion
 
 # Run the bot
-bot.run(test_token)
+bot.run(bot_token)
