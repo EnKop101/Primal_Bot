@@ -1,0 +1,22 @@
+# Main Bot Token
+TOKEN=token
+
+# Test Bot Token
+TEST=token
+
+# AI Channel where the Ai prompts and responses will be sent
+AI_CHANNEL_ID=0000000000000000000
+
+# Promotion Channel to check on creation and delete old promotion posts
+PROMO_CHANNEL_ID=0000000000000000000
+
+# Rcon IP address, Rcon Port and RCON Password
+RCON_IP=127.0.0.1
+RCON_PORT=0000
+RCON_PASS="password"
+
+# Authorized Roles Id
+AUTHORIZED_ROLES_ID=0000000000000000001,0000000000000000002,0000000000000000003
+
+# Guild Id. This is the only server the bot will work on
+GUILD_ID=0000000000000000000
