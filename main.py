@@ -22,7 +22,7 @@ load_dotenv(dotenv_path)
 
 #Get all the values from the .env file
 bot_token = os.getenv('TOKEN')
-test_token = os.getenv('TEST')
+# test_token = os.getenv('TEST')
 promo_channel_id = int(os.getenv('PROMO_CHANNEL_ID'))
 ai_channel_id = os.getenv('AI_CHANNEL_ID')
 rcon_ip = os.getenv('RCON_IP')
@@ -113,4 +113,4 @@ async def on_thread_create(thread: nextcord.Thread):
 #endregion
 
 # Run the bot
-bot.run(test_token)
+bot.run(bot_token)
