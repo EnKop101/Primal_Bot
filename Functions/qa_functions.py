@@ -43,17 +43,19 @@ class Qa_Functions:
         # Get the lines depending on the "is_primal_chaos" parameter
         lines = self.pc_context if is_primal_chaos else self.pn_context
 
-        # The JSON data payload
+        # The JSON data payload to send to the API endpoint
         data = {
             "messages": [
-            { "role": "system", "content": "You are a chatbot designed to provide information and answer questions specifically related to Primal Chaos. You should only respond to queries that directly relates to the given context. If a query is unrelated to the context, respond with: 'Not enough information to fulfill request.'" },
-            { "role": "user", "content": lines }
+            { "role": "system", "content": """You're a helpful research assistant, who answers questions based on provided research in a clear way and easy-to-understand way.
+If there is no research, or the research is irrelevant to answering the question, simply reply that you can't answer.
+Please reply with just the detailed answer. If you're unable to answer the question, do not try""" },
+            { "role": "user", "content": "HERE IS THE RESEARCH CONTEXT:\n" + lines }
             ],
             "temperature": 0.3,
             "max_tokens": -1,
             "stream": False
         }
-
+        
         if is_primal_chaos:
             data["messages"].extend(self.pc_messages)
         else:

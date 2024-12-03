@@ -53,6 +53,10 @@ authorized_users_id = []
 async def on_ready():
     guild = bot.get_guild(guild_id)
 
+    if guild == None:
+        print("Guild Fetch Failed! Shutting down bot.")
+        await bot.close()
+
     if promo_channel_id != "0":
         try:
             promo_channel = await bot.fetch_channel(promo_channel_id)
@@ -69,7 +73,9 @@ async def on_ready():
         role = guild.get_role(int(role_id))
         if role:
             for member in role.members:
-                authorized_users_id.append(member.id)
+                if member.id not in authorized_users_id:
+                    authorized_users_id.append(member.id)
+                    # print(f"Added {member.name} to the authorized users list.")
 
     # Create the bot ascii art and print it
     on_ready_logo = pyfiglet.figlet_format("PRIMAL BOT\n    READY", font="slant")
@@ -87,21 +93,26 @@ async def on_message(message: nextcord.Message):
         # Check if the message contains a discord invite link. If it does, delete the message unless the link is in the promotion channel and user owns the thread.
         if await QoL_Functions.filter_links(message, promo_channel_id):
             await message.author.send(delete_after=5, embed=se.error_embed(f"{message.author.mention}, you are not allowed to send discord invite links other than in the promotion channel!"))
+            print("Unauthorized User {0} sent a invite link: {1}".format(message.author.name, message.content))
             await message.delete()
 
 # on Raw Message Edit event. This event is called whenever a message is edited. This will mostly contain the same code as the on_message event.
-# @bot.event
-# async def on_raw_message_edit(message_payload):
-#     message = await bot.get_channel(message_payload.channel_id).fetch_message(message_payload.message_id)
+@bot.event
+async def on_raw_message_edit(message_payload: nextcord.RawMessageUpdateEvent):
 
-#     if message.author == bot.user:
-#         return
-#     # Check if the user is an authorized user.
-#     if message.author.id not in authorized_users_id:
-#         # Check if the message contains a discord invite link. If it does, delete the message unless the link is in the promotion channel and user owns the thread.
-#         if await QoL_Functions.filter_links(message, promo_channel_id):
-#             await message.author.send(delete_after=5, embed=se.error_embed(f"{message.author.mention}, you are not allowed to send discord invite links other than in the promotion channel!"))
-#             await message.delete()
+    author = message_payload.data['author']
+    if 'bot' in author and author['bot'] == True:
+        return
+    
+    message = await bot.get_channel(message_payload.channel_id).fetch_message(message_payload.message_id)
+
+    # Check if the user is an authorized user.
+    if message.author.id not in authorized_users_id:
+        # Check if the message contains a discord invite link. If it does, delete the message unless the link is in the promotion channel and user owns the thread.
+        if await QoL_Functions.filter_links(message, promo_channel_id):
+            await message.author.send(delete_after=5, embed=se.error_embed(f"{message.author.mention}, you are not allowed to send discord invite links other than in the promotion channel!"))
+            print("Unauthorized User {0} sent a invite link: {1}".format(message.author.name, message.content))
+            await message.delete()
 
 @bot.event
 async def on_thread_create(thread: nextcord.Thread):
