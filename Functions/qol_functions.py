@@ -11,7 +11,7 @@ class QoL_Functions:
     
     @staticmethod
     @tasks.loop(hours=24)
-    async def destroy_old_posts(channel):
+    async def destroy_old_posts(channel: nextcord.TextChannel):
         # Formats time to be printed in the console
         formatted_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         print(f"Daily Server Promo Cleanup Initiated at {formatted_time}")
@@ -20,7 +20,7 @@ class QoL_Functions:
             await thread.delete()
             deleted_count += 1
 
-        print(f"Deleted {deleted_count} archived post in {channel.name}!")
+        print(f"Deleted {deleted_count} archived posts!")
     
     @staticmethod
     async def filter_links(message: nextcord.Message, promo_channel_id: int):
@@ -28,5 +28,5 @@ class QoL_Functions:
             if message.channel.parent_id == promo_channel_id and message.author.id == message.channel.owner_id:
                 return False
             
-        discord_url_pattern = re.compile(r'(discord\.com|discord\.gg)/\S+')
+        discord_url_pattern = re.compile(r'discord\.(gg|com)/(invite/\S+|[^/]+)')
         return discord_url_pattern.search(message.content)
