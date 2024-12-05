@@ -38,7 +38,7 @@ class QoL_Functions:
     @staticmethod
     async def limit_one_post_per_user(thread: nextcord.Thread):
         for post in QoL_Functions.promo_channel.threads:
-            if post.owner.id == thread.owner.id:
+            if post.owner.id == thread.owner.id and post.id != thread.id:
                 await thread.owner.send(embed=se.error_embed(f"{thread.owner.mention}, you are only allowed to post once in the promotion channel!"))
                 await thread.delete()
                 return
