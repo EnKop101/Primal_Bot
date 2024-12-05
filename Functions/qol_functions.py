@@ -3,20 +3,23 @@ import re
 
 from nextcord.ext import tasks
 from datetime import datetime
+from Functions.static_embeds import Static_Embeds as se
 
 # This class contains all the QoL functions that are used in the bot. This includes filtering, cleanup and other functions.
 class QoL_Functions:
+    promo_channel: nextcord.TextChannel = None
+
     def __init__(self):
         pass
-    
+
     @staticmethod
     @tasks.loop(hours=24)
-    async def destroy_old_posts(channel: nextcord.TextChannel):
+    async def destroy_old_posts():
         # Formats time to be printed in the console
         formatted_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         print(f"Daily Server Promo Cleanup Initiated at {formatted_time}")
         deleted_count = 0
-        async for thread in channel.archived_threads(limit=None):
+        async for thread in QoL_Functions.promo_channel.archived_threads(limit=None):
             await thread.delete()
             deleted_count += 1
 
@@ -30,3 +33,12 @@ class QoL_Functions:
             
         discord_url_pattern = re.compile(r'discord\.(gg|com)/(invite/\S+|[^/]+)')
         return discord_url_pattern.search(message.content)
+
+    # This function checks if the user has already posted in the promotion channel. If so delete the newly created thread.
+    @staticmethod
+    async def limit_one_post_per_user(thread: nextcord.Thread):
+        for post in QoL_Functions.promo_channel.threads:
+            if post.owner.id == thread.owner.id:
+                await thread.owner.send(embed=se.error_embed(f"{thread.owner.mention}, you are only allowed to post once in the promotion channel!"))
+                await thread.delete()
+                return

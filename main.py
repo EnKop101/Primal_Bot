@@ -7,6 +7,7 @@ import pyfiglet
 from Functions.qa_functions import Qa_Functions
 from Functions.qol_functions import QoL_Functions
 from Functions.static_embeds import Static_Embeds as se
+from Functions.dh_functions import DH_Functions
 from Commands import qa_commands as qac
 from Commands import promo_commands as pc
 
@@ -30,8 +31,13 @@ rcon_port = os.getenv('RCON_PORT')
 rcon_password = os.getenv('RCON_PASSWORD')
 authorized_roles_id = os.getenv('AUTHORIZED_ROLES_ID').split(',') if os.getenv('AUTHORIZED_ROLES_ID') else []
 guild_id = int(os.getenv('GUILD_ID'))
+doc_folder_path = os.getenv('DOC_FOLDER_PATH')
 
 #endregion
+
+# Set Json File Path for the QA context
+pc_json_path = f"{doc_folder_path}{guild_id}/primal-chaos.json"
+pn_json_path = f"{doc_folder_path}{guild_id}/primal-nemesis.json"
 
 # Initialize colorama
 init()
@@ -39,14 +45,17 @@ init()
 # Create the bot. Use all intents.
 bot = commands.Bot(intents=nextcord.Intents.all())
 qaf = Qa_Functions("Documents/PrimalChaosDoc.txt", "Documents/PrimalNemesisDoc.txt")
+dhf = DH_Functions(pc_json_path, pn_json_path)
+
 
 # Load the commands.
-bot.add_cog(qac.Qa_Commands(bot, qaf))
+bot.add_cog(qac.Qa_Commands(bot, qaf, dhf))
 bot.add_cog(pc.Promo_Commands(bot))
 print(f'Cogs have been loaded.')
 
 # Global variables
 authorized_users_id = []
+promo_channel: nextcord.TextChannel = None
 
 #region Event handlers for the bot
 @bot.event
@@ -61,7 +70,8 @@ async def on_ready():
         try:
             promo_channel = await bot.fetch_channel(promo_channel_id)
             print(f"Promo Channel Fetched: {promo_channel.name}")
-            QoL_Functions.destroy_old_posts.start(promo_channel)
+            QoL_Functions.promo_channel = promo_channel
+            QoL_Functions.destroy_old_posts.start()
         except:
             print("Promo Channel Fetch Failed!")
     
@@ -104,6 +114,7 @@ async def on_raw_message_edit(message_payload: nextcord.RawMessageUpdateEvent):
     if 'bot' in author and author['bot'] == True:
         return
     
+    # Fetch the message from the payload.
     message = await bot.get_channel(message_payload.channel_id).fetch_message(message_payload.message_id)
 
     # Check if the user is an authorized user.
@@ -116,8 +127,10 @@ async def on_raw_message_edit(message_payload: nextcord.RawMessageUpdateEvent):
 
 @bot.event
 async def on_thread_create(thread: nextcord.Thread):
-    if thread.parent_id != promo_channel_id:
+    if thread.parent_id != promo_channel_id or QoL_Functions.promo_channel == None:
         return
+    
+    await QoL_Functions.limit_one_post_per_user(thread)
 
 #endregion
 

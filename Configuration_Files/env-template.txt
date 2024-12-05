@@ -20,3 +20,6 @@ AUTHORIZED_ROLES_ID=0000000000000000001,0000000000000000002,0000000000000000003
 
 # Guild Id. This is the only server the bot will work on
 GUILD_ID=0000000000000000000
+
+#The base folder path where the bot will store all the context document for the chatbot.
+DOC_FOLDER_PATH=C:\Base\Folder\Path\For\Docs
