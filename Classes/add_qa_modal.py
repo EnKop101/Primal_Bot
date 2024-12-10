@@ -14,7 +14,7 @@ class Add_QA_Modal(Modal):
         self.qaf = qaf
         # Create the input values for the modal.
         self.question = TextInput(placeholder="Question", label="Question")
-        self.answer = TextInput(placeholder="Answer", label="Answer")
+        self.answer = TextInput(placeholder="Answer", label="Answer", min_length=1, style=nextcord.TextInputStyle.paragraph)
         self.category = StringSelect(placeholder="Select a Category")
         
         # Add the items to the modal.
