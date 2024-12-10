@@ -44,8 +44,8 @@ init()
 
 # Create the bot. Use all intents.
 bot = commands.Bot(intents=nextcord.Intents.all())
-qaf = Qa_Functions("Documents/PrimalChaosDoc.txt", "Documents/PrimalNemesisDoc.txt")
 dhf = DH_Functions(pc_json_path, pn_json_path)
+qaf = Qa_Functions(dhf.pc_messages, dhf.pn_messages)
 
 
 # Load the commands.
@@ -55,7 +55,6 @@ print(f'Cogs have been loaded.')
 
 # Global variables
 authorized_users_id = []
-promo_channel: nextcord.TextChannel = None
 
 #region Event handlers for the bot
 @bot.event
