@@ -46,7 +46,9 @@ class Qa_Commands(commands.Cog):
     @nextcord.slash_command(name="add-qa", description="Adds a question and answer to the QA context")
     async def add_qa(self, interaction: nextcord.Interaction, mod_option = nextcord.SlashOption(
         name="option", description="Select the QA context", required=True, choices={"Primal Chaos": "0", "Primal Nemesis": "1"})):
+        # Defer the response to prevent the interaction from timing out.
         is_pc = True if mod_option == "0" else False
+        # Create a modal and send it to the user.
         modal = Add_QA_Modal(self.qaf, self.dhf, is_pc)
         await interaction.response.send_modal(modal)
 #endregion
@@ -57,7 +59,7 @@ class Qa_Commands(commands.Cog):
         name="option", description="Select the QA context", required=True, choices={"Primal Chaos": "0", "Primal Nemesis": "1"}),
         message_id = str):
         await interaction.response.defer(ephemeral=True)
-        
+
         # Check the mod_option to determine which context to use.
         is_pc = True if mod_option == "0" else False
         updated_messages: list[QA_Class] = await self.dhf.remove_message(message_id, is_pc)
