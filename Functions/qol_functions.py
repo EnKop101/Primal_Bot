@@ -25,11 +25,11 @@ class QoL_Functions:
 
         print(f"Deleted {deleted_count} archived posts!")
     
+
     @staticmethod
     async def filter_links(message: nextcord.Message, promo_channel_id: int):
-        if message.channel.type != nextcord.ChannelType.text:
-            if message.channel.parent_id == promo_channel_id and message.author.id == message.channel.owner_id:
-                return False
+        if (message.channel.id == promo_channel_id and message.author == message.channel.guild.owner):
+            return False
             
         discord_url_pattern = re.compile(r'discord\.(gg|com)/(invite/\S+|[^/]+)')
         return discord_url_pattern.search(message.content)

@@ -100,6 +100,7 @@ async def on_message(message: nextcord.Message):
     # Check if the user is an authorized user.
     if message.author.id not in authorized_users_id:
         # Check if the message contains a discord invite link. If it does, delete the message unless the link is in the promotion channel and user owns the thread.
+        
         if await QoL_Functions.filter_links(message, promo_channel_id):
             await message.author.send(delete_after=5, embed=se.error_embed(f"{message.author.mention}, you are not allowed to send discord invite links other than in the promotion channel!"))
             print("Unauthorized User {0} sent a invite link: {1}".format(message.author.name, message.content))
@@ -126,7 +127,7 @@ async def on_raw_message_edit(message_payload: nextcord.RawMessageUpdateEvent):
 
 @bot.event
 async def on_thread_create(thread: nextcord.Thread):
-    if thread.parent_id != promo_channel_id or QoL_Functions.promo_channel == None:
+    if thread.parent.id != promo_channel_id or QoL_Functions.promo_channel == None:
         return
     
     await QoL_Functions.limit_one_post_per_user(thread)

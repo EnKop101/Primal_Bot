@@ -30,10 +30,11 @@ class Add_QA_Modal(Modal):
         # Add the message to the QA context.
         updated_messages: list[QA_Class] = await self.dhf.add_message(message, self.is_pc)
 
+        # Check if the message was added successfully. If not send an error message.
         if updated_messages == None:
             await interaction.followup.send(embed=se.error_embed("Failed to add message. If this continues please contact EnKop"), ephemeral=True)
             return
 
+        # Update the Qa_Functions variables with the new messages.
         await self.qaf.update_qaf_variables(updated_messages, self.is_pc)
-
         await interaction.followup.send(embed=se.success_embed(f"**QA Added**\n**Id:** {message.id}\n**Question:** {message.question}\n**Answer:** {message.answer}"), ephemeral=True)

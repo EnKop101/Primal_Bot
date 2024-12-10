@@ -52,6 +52,7 @@ class Qa_Functions:
         # Making the POST request to the local server
         return await self.fetch_response(headers, data)
 
+    # This function sends a request to the API endpoint to get a response from the model.
     async def fetch_response(self, headers, data):
     
         # Make the request using aiohttp
@@ -74,6 +75,7 @@ class Qa_Functions:
                 print("\n-------------------\nAn error occurred:", str(e))
                 return None
     
+    # This function formats the messages to the format that the API expects.
     def format_messages(self, messages):
         formatted_messages = []
         for message in messages:
@@ -81,6 +83,7 @@ class Qa_Functions:
             formatted_messages.append({"role": "assistant", "content": message.answer})
         return formatted_messages
     
+    # This function gets the context from the messages.
     def get_context(self, messages: list[QA_Class]):
         context = ""
         for message in messages:
@@ -89,6 +92,7 @@ class Qa_Functions:
         
         return context
     
+    # This function updates the Qa_Functions variables with the new messages.
     async def update_qaf_variables(self, messages: list[QA_Class], is_pc: bool):
         if is_pc:
             self.pc_messages = self.format_messages(messages)
