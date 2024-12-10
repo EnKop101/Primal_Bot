@@ -23,7 +23,7 @@ class Qa_Commands(commands.Cog):
 
         # Checks whether the chat_response is not empty. If it is empty something went wrong with the API request.
         if chat_response:
-            await interaction.followup.send(ephemeral=True, embed=se.response_embed(chat_response))
+            await interaction.followup.send(chat_response, ephemeral=True,)
         else:
             await interaction.followup.send(ephemeral=True, embed=se.error_embed("It seems something went wrong with your request. If this continues please contact an Admin for help instead."))
 #endregion
