@@ -8,8 +8,11 @@ from Functions.qa_functions import Qa_Functions
 from Functions.qol_functions import QoL_Functions
 from Functions.static_embeds import Static_Embeds as se
 from Functions.dh_functions import DH_Functions
+from Functions.rcon_functions import RCON_Functions
+from Classes.rcon_class import RCON_Class
 from Commands import qa_commands as qac
 from Commands import promo_commands as pc
+from Commands import rcon_commands as rconc
 
 # From imports
 from nextcord.ext import commands
@@ -28,7 +31,7 @@ promo_channel_id = int(os.getenv('PROMO_CHANNEL_ID'))
 ai_channel_id = os.getenv('AI_CHANNEL_ID')
 rcon_ip = os.getenv('RCON_IP')
 rcon_port = os.getenv('RCON_PORT')
-rcon_password = os.getenv('RCON_PASSWORD')
+rcon_password = os.getenv('RCON_PASS')
 authorized_roles_id = os.getenv('AUTHORIZED_ROLES_ID').split(',') if os.getenv('AUTHORIZED_ROLES_ID') else []
 guild_id = int(os.getenv('GUILD_ID'))
 doc_folder_path = os.getenv('DOC_FOLDER_PATH')
@@ -44,19 +47,23 @@ init()
 
 # Create the bot. Use all intents.
 bot = commands.Bot(intents=nextcord.Intents.all())
+
+# Create the instances of the classes.
 dhf = DH_Functions(pc_json_path, pn_json_path)
 qaf = Qa_Functions(dhf.pc_messages, dhf.pn_messages)
-
+rcon_class = RCON_Class(rcon_ip, int(rcon_port), rcon_password)
+rconf = RCON_Functions(rcon_class)
 
 # Load the commands.
 bot.add_cog(qac.Qa_Commands(bot, qaf, dhf))
 bot.add_cog(pc.Promo_Commands(bot))
+bot.add_cog(rconc.RCON_Commands(bot, rconf))
 print(f'Cogs have been loaded.')
 
 # Global variables
 authorized_users_id = []
 
-#region Event handlers for the bot
+#region On Ready Event
 @bot.event
 async def on_ready():
     guild = bot.get_guild(guild_id)
@@ -91,20 +98,27 @@ async def on_ready():
     print(Fore.GREEN + on_ready_logo)
     print(Style.RESET_ALL)
 
+#endregion
+    
+#region On Message and Raw Message Edit Events
 # on Message event. This event is called whenever a message is sent in a channel the bot has access to.
 @bot.event
 async def on_message(message: nextcord.Message):
     if message.author == bot.user:
         return
-    
-    # Check if the user is an authorized user.
-    if message.author.id not in authorized_users_id:
-        # Check if the message contains a discord invite link. If it does, delete the message unless the link is in the promotion channel and user owns the thread.
-        
-        if await QoL_Functions.filter_links(message, promo_channel_id):
-            await message.author.send(delete_after=5, embed=se.error_embed(f"{message.author.mention}, you are not allowed to send discord invite links other than in the promotion channel!"))
-            print("Unauthorized User {0} sent a invite link: {1}".format(message.author.name, message.content))
-            await message.delete()
+    try:
+        # Check if the user is an authorized user.
+        if message.author.id not in authorized_users_id:
+            # Check if the message contains a discord invite link. If it does, delete the message unless the link is in the promotion channel and user owns the thread.
+            if await QoL_Functions.filter_links(message, promo_channel_id):
+                await message.author.send(delete_after=5, embed=se.error_embed(f"{message.author.mention}, you are not allowed to send discord invite links other than in the promotion channel!"))
+                print("Unauthorized User {0} sent a invite link in channel: {1}".format(message.author.name, message.channel.name))
+                print("Message Content: {0}".format(message.content))
+                print("----------" * 20)
+                await message.delete()
+    except:
+        # If an error occurs, do nothing.
+        pass
 
 # on Raw Message Edit event. This event is called whenever a message is edited. This will mostly contain the same code as the on_message event.
 @bot.event
@@ -114,23 +128,34 @@ async def on_raw_message_edit(message_payload: nextcord.RawMessageUpdateEvent):
     if 'bot' in author and author['bot'] == True:
         return
     
-    # Fetch the message from the payload.
-    message = await bot.get_channel(message_payload.channel_id).fetch_message(message_payload.message_id)
+    try:
+        # Fetch the message from the payload.
+        message = await bot.get_channel(message_payload.channel_id).fetch_message(message_payload.message_id)
 
-    # Check if the user is an authorized user.
-    if message.author.id not in authorized_users_id:
-        # Check if the message contains a discord invite link. If it does, delete the message unless the link is in the promotion channel and user owns the thread.
-        if await QoL_Functions.filter_links(message, promo_channel_id):
-            await message.author.send(delete_after=5, embed=se.error_embed(f"{message.author.mention}, you are not allowed to send discord invite links other than in the promotion channel!"))
-            print("Unauthorized User {0} sent a invite link: {1}".format(message.author.name, message.content))
-            await message.delete()
+        # Check if the user is an authorized user.
+        if message.author.id not in authorized_users_id:
+            # Check if the message contains a discord invite link. If it does, delete the message unless the link is in the promotion channel and user owns the thread.
+            if await QoL_Functions.filter_links(message, promo_channel_id):
+                await message.author.send(delete_after=5, embed=se.error_embed(f"{message.author.mention}, you are not allowed to send discord invite links other than in the promotion channel!"))
+                print("Unauthorized User {0} sent a invite link in channel: {1}".format(message.author.name, message.channel.name))
+                print("Message Content: {0}".format(message.content))
+                print("----------" * 20)
+                await message.delete()
+    except:
+        # If an error occurs, do nothing.
+        pass
 
+#endregion
+
+#region On Thread Create Event   
 @bot.event
 async def on_thread_create(thread: nextcord.Thread):
     if thread.parent.id != promo_channel_id or QoL_Functions.promo_channel == None:
         return
-    
-    await QoL_Functions.limit_one_post_per_user(thread)
+    try:
+        await QoL_Functions.limit_one_post_per_user(thread)
+    except Exception as e:
+        print(f"Error in on_thread_create: {e}")
 
 #endregion
 
