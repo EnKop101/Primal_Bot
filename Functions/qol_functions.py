@@ -28,7 +28,7 @@ class QoL_Functions:
 
     @staticmethod
     async def filter_links(message: nextcord.Message, promo_channel_id: int):
-        if (message.channel.id == promo_channel_id and message.author == message.channel.guild.owner):
+        if (message.channel.parent.id == promo_channel_id and message.author.id == message.channel.owner.id):
             return False
             
         discord_url_pattern = re.compile(r'discord\.(gg|com)/(invite/\S+|[^/]+)')
